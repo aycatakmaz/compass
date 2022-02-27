@@ -8,7 +8,7 @@ from models import soft_argmax as sfa
 from utils import torch as uto
 
 from s2cnn import so3_equatorial_grid, SO3Convolution, so3_near_identity_grid
-
+import pdb
 
 class LrfLayer(nn.Module):
     def __init__(self, bandwidths, features, softmax_temp, use_equatorial_grid):
@@ -39,6 +39,7 @@ class LrfLayer(nn.Module):
         self.soft_argmarx = sfa.SoftArgmax3D(0.0, 1.0, 'Parzen', float(self.bandwidths[-1] * 2.0), self.softmax_temp)
 
     def forward(self, input):  # pylint: disable=W0221
+        #pdb.set_trace()
         lrf_features_map = self.lrf_layer(input)
 
         arg_maxima = self.soft_argmarx(lrf_features_map)

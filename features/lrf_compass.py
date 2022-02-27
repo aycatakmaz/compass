@@ -14,6 +14,7 @@ import numpy as np
 from s2cnn import so3_rotation
 import torch
 
+import pdb
 
 class CompassEstimator(lrfe.LRFEstimator):
     """
@@ -63,6 +64,7 @@ class CompassEstimator(lrfe.LRFEstimator):
         self.layer_lrf.to(device)
 
     def __call__(self, cloud, indices, return_features_map=False):
+        #pdb.set_trace()
         self.dataset = ds.LRFBenchmarkLPCDDataset(cloud, indices, self.radius_support, self.input_transformation)
         self.dataloader = torch.utils.data.DataLoader(self.dataset,
                                                    batch_size=self.size_batch,
@@ -71,7 +73,7 @@ class CompassEstimator(lrfe.LRFEstimator):
                                                    pin_memory=True,
                                                    drop_last=False)
 
-
+        #pdb.set_trace()
         lrfs = np.empty((len(indices), 3, 3), dtype='float64')
         clouds = np.empty((len(indices), self.num_points, 3), dtype='float64')
         if (return_features_map):
@@ -80,12 +82,13 @@ class CompassEstimator(lrfe.LRFEstimator):
             features_map = None
 
         for i_c, data in enumerate(self.dataloader):
-            points, signals, indices_kp = data
+            #pdb.set_trace()
+            points, signals, indices_kp = data #torch.Size([1, 1220, 3]), torch.Size([1, 4, 48, 48]), tensor([1,1], dtype=torch.int32)
             signals = signals.to(self.device)
 
             with torch.no_grad():
 
-                batch_so3_signals = self.layer_s2(signals)
+                batch_so3_signals = self.layer_s2(signals) #torch.Size([1, 40, 48, 48, 48])
 
                 lrf_features_map, batch_lrfs = self.layer_lrf(batch_so3_signals)
                 batch_lrfs = batch_lrfs.data.cpu().numpy()

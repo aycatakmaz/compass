@@ -135,6 +135,7 @@ class LocalPointCloudDataset(torch.utils.data.Dataset):
                     # Delete points
                     pts_rnd = np.delete(pts_rnd, np.array(indices), axis=0)
 
+        
         if self.transform is not None and type(self.transform).__name__ == "ConvertToSphericalVoxel":
             if (self.dataset == "ShapeNet" or self.dataset == "ModelNet"):
                 self.transform.radius_support = ug.get_max_radius(pts)

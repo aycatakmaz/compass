@@ -9,7 +9,7 @@ import numpy as np
 from utils import io as uio
 from utils import geometry as ug
 from features import det_uniform_sampling as kpus
-
+import pdb
 
 class LRFBenchmarkLPCDDataset(torch.utils.data.Dataset):
 
@@ -37,6 +37,7 @@ class LRFBenchmarkLPCDDataset(torch.utils.data.Dataset):
         self.input_transformation = input_transformation
 
         self.kdtree = o3d.geometry.KDTreeFlann(self.cloud)
+        #pdb.set_trace()
 
     def __getitem__(self, index):
         index_kp = self.indices_kp[index]
@@ -51,6 +52,7 @@ class LRFBenchmarkLPCDDataset(torch.utils.data.Dataset):
         return self.__class__.__name__ + 'Radius Support = {}'.format(self.support_radius)
 
     def _transform(self, point_index): 
+        #pdb.set_trace()
         feature_point = self.cloud.points[point_index]
 
         [_, idx, _] = self.kdtree.search_radius_vector_3d(feature_point, self.support_radius)

@@ -53,8 +53,10 @@ def load_h5(h5_filename):
     return (data, label)
 
 def get_pair_and_matrix_3dmatch(file, delimiter="\t", type=np.float32):
-
+    import pdb
+    #pdb.set_trace()
     dict = {}
+    delimiter = None #for 3DMatch
 
     with open(file, "r") as file_gt:
         lines = file_gt.readlines()
