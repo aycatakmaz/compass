@@ -25,9 +25,9 @@ git clone https://github.com/AMLab-Amsterdam/lie_learn
 cd lie_learn
 python setup.py install
 ```
-Install spherical-cnns:
+Install spherical-cnns (this is my fork for newer pytorch versions e.g. pytorch 1.10):
 ```bash
-git clone https://github.com/jonas-koehler/s2cnn.git
+git clone https://github.com/aycatakmaz/s2cnn.git
 cd s2cnn
 python setup.py install
 ```
