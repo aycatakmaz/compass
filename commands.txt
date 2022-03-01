@@ -1,7 +1,10 @@
-
+python run_compass.py --config_file configs/test_aff.yaml --path_result /Users/aycatakmaz/Projects/results_compass --path_ds pretrained_models/modelnet40/training_stuff.pkl --path_ckp_layer_s2 pretrained_models/modelnet40/s2_layer.pkl --path_ckp_layer_lrf pretrained_models/modelnet40/lrf_layer.pkl --use_gpu=0 --file_id=3089 --random_rotation
 
 python orig_lrf_benchmark.py --config_file configs/test_3dm.yaml --path_result /cluster/scratch/takmaza/compass_results --path_ds /cluster/scratch/takmaza/compass_datasets/sun3d-hotel_uc-scan3_merged --path_ckp_layer_s2 /cluster/home/takmaza/compass/pretrained_models/modelnet40/s2_layer.pkl --path_ckp_layer_lrf /cluster/home/takmaza/compass/pretrained_models/modelnet40/lrf_layer.pkl --use_gpu=0
 
 python orig_lrf_benchmark.py --config_file configs/test_3dm.yaml --path_result /cluster/scratch/takmaza/compass_results --path_ds /cluster/scratch/takmaza/compass_datasets/validation-set.mat --path_ckp_layer_s2 /cluster/home/takmaza/compass/pretrained_models/modelnet40/s2_layer.pkl --path_ckp_layer_lrf /cluster/home/takmaza/compass/pretrained_models/modelnet40/lrf_layer.pkl --use_gpu=0
 
 python run_compass.py --config_file configs/test_3dm.yaml --path_result /cluster/scratch/takmaza/compass_results --path_ds /cluster/home/takmaza/compass/pretrained_models/modelnet40/training_stuff.pkl --path_ckp_layer_s2 /cluster/home/takmaza/compass/pretrained_models/modelnet40/s2_layer.pkl --path_ckp_layer_lrf /cluster/home/takmaza/compass/pretrained_models/modelnet40/lrf_layer.pkl --use_gpu=0
+
+python run_compass.py --config_file configs/test_3dm.yaml --path_result /Users/aycatakmaz/Projects/results_compass --path_ds pretrained_models/modelnet40/training_stuff.pkl --path_ckp_layer_s2 pretrained_models/modelnet40/s2_layer.pkl --path_ckp_layer_lrf pretrained_models/modelnet40/lrf_layer.pkl --use_gpu=0
+

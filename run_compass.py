@@ -253,12 +253,24 @@ class LocalReferenceFrameBenchmark():
         if not self.init_metrics():
             raise Exception('init_metrics() failed.')
 
-    def predict(self, cloud_src=None):
+    def predict(self, cloud_src=None, file_id=3087, random_rotation=False):
         #pdb.set_trace()
 
         #pdb.set_trace()
-        input_pc = np.random.rand(2048,3)
-        #trimesh.points.plot_points(input_pc, show=False); plt.savefig('tpc.png')
+        #input_pc = np.random.rand(2048,3)
+
+        rot_mat = np.eye(3)
+        name_for_rot = ''
+        if random_rotation:
+            import scipy
+            name_for_rot = '_rot'
+            rot_mat = scipy.spatial.transform.Rotation.random().as_matrix()
+
+        print('/Users/aycatakmaz/Projects/IsolatedRotGre/chairs/sample_chair_pc_'+ str(file_id) +'.npy')
+        input_pc = np.load('/Users/aycatakmaz/Projects/IsolatedRotGre/chairs/sample_chair_pc_'+ str(file_id) +'.npy')
+        input_pc = (rot_mat @ input_pc.T).T
+        #pdb.set_trace()
+        trimesh.points.plot_points(input_pc, show=False); plt.savefig('tpc_'+str(file_id) + name_for_rot +'.png')
 
         cloud_src = o3d.geometry.PointCloud()
         cloud_src.points = o3d.utility.Vector3dVector(np.asarray(input_pc))
@@ -275,46 +287,12 @@ class LocalReferenceFrameBenchmark():
         #o3d.visualization.draw_geometries(viz_src)
 
         lrfs_src, pts_src, lrf_features_map_src = self.estimate_lrfs(cloud_src, indices_kp_src, self.faces_src)
+        rot_mat = lrfs_src
+        R_input_pc = rot_mat[0] @ input_pc.T
+        trimesh.points.plot_points(R_input_pc.T, show=False); plt.savefig('tpc_r_inp_'+str(file_id) + name_for_rot +'.png')
 
-        pdb.set_trace()
-
-        with torch.no_grad():
-            # Compute Chamfer
-            lrfs_src = torch.tensor(lrfs_src, dtype=torch.float, device=self.device).view(-1, 3, 3)
-            pts_src = torch.tensor(pts_src, dtype=torch.float, device=self.device).view(-1, self.args.size_point_cloud, 3)
-            pts_src_in_lrf = utor.rotate_batch_cloud(pts_src, lrfs_src)
-
-            lrfs_trg = torch.tensor(lrfs_trg, dtype=torch.float, device=self.device).view(-1, 3, 3)
-            pts_trg_tensor = torch.tensor(pts_trg, dtype=torch.float, device=self.device).view(-1, self.args.size_point_cloud, 3)
-            pts_trg_in_lrf = utor.rotate_batch_cloud(pts_trg_tensor, lrfs_trg)
-
-            chamfer_batch = 10
-            iterations = int(np.ceil(pts_src_in_lrf.shape[0] / chamfer_batch))
-            dist_src_trg = torch.empty((pts_src_in_lrf.shape[0], pts_src_in_lrf.shape[1]), dtype=torch.float)
-            dist_trg_src = torch.empty((pts_src_in_lrf.shape[0], pts_src_in_lrf.shape[1]), dtype=torch.float)
-            
-            for cham_i in range(iterations):
-                upper_limit = min(pts_src_in_lrf.shape[0], (cham_i+1)*chamfer_batch)
-                dist_src_trg[cham_i*chamfer_batch:upper_limit,:], dist_trg_src[cham_i*chamfer_batch:upper_limit,:] = self.metric_points(pts_src_in_lrf[cham_i*chamfer_batch:upper_limit,:,:], pts_trg_in_lrf[cham_i*chamfer_batch:upper_limit,:,:])
-
-            distances_chamfer = torch.mean(dist_src_trg, dim=1) + torch.mean(dist_trg_src, dim=1)
-
-            # Compute Theta
-            mat_gt_src_trg_tensor = torch.tensor(mat_gt_trg_to_src[:3, :3].T).view(1, 3, 3)
-            batch_gt_tensor = mat_gt_src_trg_tensor.repeat(lrfs_src.shape[0], 1, 1)
-
-            lrfs_expected = torch.bmm(lrfs_src.to('cpu'), batch_gt_tensor.transpose(2, 1))
-            distances_rotation = self.metric_rotations(lrfs_trg.to('cpu'), lrfs_expected)
-
-            # Th cosines
-            lrfs_src_as_cols = np.transpose(lrfs_src.data.cpu().numpy(), (0, 2, 1))
-            lrfs_trg_as_cols = np.transpose(lrfs_trg.data.cpu().numpy(), (0, 2, 1))
-            mat_gt_src_to_trg = mat_gt_trg_to_src[:3, :3].T
-
-            lrf_repeatability = self.metric_lrf_repeatability(lrfs_src=lrfs_src_as_cols,
-                                                                lrfs_trg=lrfs_trg_as_cols,
-                                                                mat_from_src_to_trg=mat_gt_src_to_trg,
-                                                                th_cosine=self.args.th_cosine)
+        Rinv_input_pc = rot_mat[0].T @input_pc.T
+        trimesh.points.plot_points(Rinv_input_pc.T, show=False); plt.savefig('tpc_rinv_inp_'+str(file_id) + name_for_rot +'.png')
 
         self.logger.info("Benchmark end at [{}]".format(dt.datetime.now()))
 
@@ -579,7 +557,11 @@ def parse_commandline():
     parser.add_argument("--id_gpu", type=int, default=0, help="Gpu ID")
     parser.add_argument("--size_batch", type=int, default=1, help="Size of batch for forward pass. Affects GPU VRAM occupation.")
     parser.add_argument("--num_workers", type=int, default=0, help="Number of workers for the PyTorch dataloader (#CPU Cores - 1).")
-    
+    parser.add_argument("--file_id", type=int, default=3087, help="file ID")
+    parser.add_argument("--random_rotation", default=False, action='store_true')
+
+
+
     return parser.parse_args()
 
 
@@ -589,7 +571,7 @@ def main(args):
 
     benchmark.prepare()
 
-    benchmark.predict()
+    benchmark.predict(file_id=args.file_id, random_rotation=args.random_rotation)
 
     benchmark.print_results()
     benchmark.store_results()

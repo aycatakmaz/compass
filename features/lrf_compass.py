@@ -28,7 +28,7 @@ class CompassEstimator(lrfe.LRFEstimator):
         self.path_lrf = path_lrf
         self.device = device
         self.num_points = num_points
-        self.radius_support = radius_support
+        self.radius_support = 3.0 #radius_support
         self.lrf_features = lrf_features
         self.lrf_bandwidths = lrf_bandwidths
         self.use_equatorial_grid = use_equatorial_grid
@@ -64,8 +64,12 @@ class CompassEstimator(lrfe.LRFEstimator):
         self.layer_lrf.to(device)
 
     def __call__(self, cloud, indices, return_features_map=False):
-        #pdb.set_trace()
+        
+        #indices = np.expand_dims(indices, axis=0)
+        #indices = np.squeeze(indices, axis=2)
         self.dataset = ds.LRFBenchmarkLPCDDataset(cloud, indices, self.radius_support, self.input_transformation)
+
+        #self.dataset = ds.LRFBenchmarkLPCDDataset(cloud, indices, self.radius_support, self.input_transformation)
         self.dataloader = torch.utils.data.DataLoader(self.dataset,
                                                    batch_size=self.size_batch,
                                                    shuffle=False,
